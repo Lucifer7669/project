@@ -1,46 +1,28 @@
-pipeline {
-agent {
-label {
-		label "built-in"
-		customWorkspace "/data/project-myapp"
-		
-		}
-		}
-		
-	stages {
-		
-		stage ('CLEAN_OLD_M2') {
-			
-			steps {
-				sh "rm -rf /home/saccount/.m2/repository"
-				
-			}
-			
-		}
-	
-		stage ('MAVEN_BUILD') {
-		
-			steps {
-						
-						sh "mvn clean package"
-			
-			}
-			
-		
-		}
-		
-		stage ('COPY_WAR_TO_Server'){
-		
-				steps {
-						
-						sh "scp -r target/LoginWebApp.war saccount@10.0.2.51:/data/project/wars"
+pipeline{
+   agent {
+    label {
+        label "built-in"
+        customWorkspace "/mnt/source-code/"
+    }
+   }
 
-						}
-				
-				}
-	
-	
-	
-	}
-		
+   stages {
+    stage ('clone souce code') {
+       steps{
+        sh "git clone https://github.com/Lucifer7669/project"
+       }
+    }
+
+    stage ('building phase'){
+        steps{
+            sh "cd project && mvn clean install"
+        }
+    }
+
+    stage ('deployment'){
+        steps{
+            sh "scp -i project/target/LoginWebapp.war vedant@172.31.37.41:/tmp/server/apache-tomcat-9.0.73/webapps/"
+        }
+    }
+   }
 }
